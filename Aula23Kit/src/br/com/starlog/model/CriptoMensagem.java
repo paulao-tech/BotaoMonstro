@@ -3,13 +3,8 @@ package br.com.starlog.model;
 /**
  * CAMADA MODEL (Modelo de Domínio)
  * Representa uma mensagem criptográfica a ser transmitida.
- * 
- * ATENÇÃO ESTUDANTE:
- * Implemente esta classe a partir do código extraído da TelaCaoticaLegada
- * para satisfazer os testes TDD de 01 a 06!
- * 
- * REGRA SAGRADA DE ARQUITETURA:
- * O Model NUNCA deve importar componentes visuais (zero imports de javax.swing.*)!
+ *
+ * O Model não importa componentes visuais.
  */
 public class CriptoMensagem {
     private final String remetente;
@@ -17,14 +12,20 @@ public class CriptoMensagem {
     private final int chaveDeslocamento;
 
     public CriptoMensagem(String remetente, String mensagem, int chaveDeslocamento) {
-        // TODO: Etapa 2 - Implementar barreira Fail-Fast
-        // 1. Validar se remetente é nulo ou vazio -> lançar IllegalArgumentException("Remetente não pode ser nulo ou vazio.");
-        // 2. Validar se mensagem é nula ou vazia -> lançar IllegalArgumentException("Mensagem não pode ser nula ou vazia.");
-        // 3. Validar se chaveDeslocamento está fora de 1..25 -> lançar IllegalArgumentException("Chave deve estar entre 1 e 25.");
-        // 4. Normalizar remetente e mensagem (.trim().toUpperCase())
-        
-        this.remetente = remetente != null ? remetente.trim() : "";
-        this.mensagem = mensagem != null ? mensagem.trim() : "";
+        if (remetente == null || remetente.trim().isEmpty()) {
+            throw new IllegalArgumentException("Remetente não pode ser nulo ou vazio.");
+        }
+
+        if (mensagem == null || mensagem.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mensagem não pode ser nula ou vazia.");
+        }
+
+        if (chaveDeslocamento < 1 || chaveDeslocamento > 25) {
+            throw new IllegalArgumentException("Chave deve estar entre 1 e 25.");
+        }
+
+        this.remetente = remetente.trim().toUpperCase();
+        this.mensagem = mensagem.trim().toUpperCase();
         this.chaveDeslocamento = chaveDeslocamento;
     }
 
@@ -45,18 +46,35 @@ public class CriptoMensagem {
      * Preserva espaços e pontuações sem alteração.
      */
     public String cifrar() {
-        // TODO: Etapa 2 - Extrair algoritmo da Cifra de César da TelaCaoticaLegada
-        // Dica: Para cada caractere entre 'A' e 'Z', rotacionar circularmente:
-        // char cifrado = (char) ('A' + (c - 'A' + this.chaveDeslocamento) % 26);
-        return "";
+        StringBuilder cifrado = new StringBuilder();
+
+        for (int i = 0; i < mensagem.length(); i++) {
+            char c = mensagem.charAt(i);
+
+            if (c >= 'A' && c <= 'Z') {
+                char letraCifrada = (char) (
+                    'A' + (c - 'A' + this.chaveDeslocamento) % 26
+                );
+                cifrado.append(letraCifrada);
+            } else {
+                cifrado.append(c);
+            }
+        }
+
+        return cifrado.toString();
     }
 
     /**
-     * Calcula o checksum somando o valor ordinal ASCII de cada caractere da mensagem em maiúsculo.
+     * Calcula o checksum somando o valor ordinal ASCII de cada caractere
+     * da mensagem em maiúsculo.
      */
     public int calcularChecksum() {
-        // TODO: Etapa 2 - Extrair cálculo de Checksum da TelaCaoticaLegada
-        // Somar o código ASCII de todos os caracteres da mensagem
-        return 0;
+        int checksum = 0;
+
+        for (char c : mensagem.toCharArray()) {
+            checksum += (int) c;
+        }
+
+        return checksum;
     }
 }
